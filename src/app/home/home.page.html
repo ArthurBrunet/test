@@ -6,9 +6,32 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
-  <div class="ion-padding">
-    The world is your oyster.
-    <p>If you get lost, the <a target="_blank" rel="noopener" href="https://ionicframework.com/docs/">docs</a> will be your guide.</p>
-  </div>
+<ion-content padding>
+
+  <ion-item>
+    <ion-label>X orientation</ion-label>
+    <ion-input type="text" [(ngModel)]="x"></ion-input>
+  </ion-item>
+  <ion-item>
+    <ion-label>Y orientation</ion-label>
+    <ion-input type="text" [(ngModel)]="y"></ion-input>
+  </ion-item>
+  <ion-item>
+    <ion-label>Z orientation</ion-label>
+    <ion-input type="text" [(ngModel)]="z"></ion-input>
+  </ion-item>
+
+  <ion-item>
+    <ion-label>Acceleration X</ion-label>
+    <ion-input type="text" [(ngModel)]="accX"></ion-input>
+  </ion-item>
+  <ion-item>
+    <ion-label>Acceleration Y</ion-label>
+    <ion-input type="text" [(ngModel)]="accY"></ion-input>
+  </ion-item>
+  <ion-item>
+    <ion-label>Acceleration Z</ion-label>
+    <ion-input type="text" [(ngModel)]="accZ"></ion-input>
+  </ion-item>
+
 </ion-content>
