@@ -2,7 +2,6 @@ import {Component, ViewChild} from '@angular/core';
 import {DeviceMotion, DeviceMotionAccelerationData} from '@ionic-native/device-motion/ngx';
 import {Gyroscope, GyroscopeOrientation, GyroscopeOptions} from '@ionic-native/gyroscope/ngx';
 import {HttpClient, HttpHeaders, HttpErrorResponse} from '@angular/common/http';
-import {Chart, ChartPoint} from 'chart.js';
 
 import {Data} from '../Models/Data';
 
@@ -19,15 +18,7 @@ const apiUrl = 'http://185.216.25.16:3000/data';
 
 
 export class HomePage {
-    // @ts-ignore
-    @ViewChild('barChart') barChart;
-
-    bars: Chart;
-    colorArray: any;
     public Array = [];
-    public ArrayPositionX = [];
-    public ArrayPositionY = [];
-    public ArrayPositionZ = [];
     public Data: Data;
     public x = 0;
     public y = 0;
@@ -53,7 +44,6 @@ export class HomePage {
         this.positionY = 0;
         this.positionZ = 0;
         this.gyro();
-        setTimeout(() => { this.chart(); }, 7000);
     }
 
 
@@ -91,13 +81,13 @@ export class HomePage {
                 timestamp: this.timestamp
             };
             this.Array.push(this.Data);
-        }, 100);
+        }, 250);
 
         setInterval(() => {
             this.api.post(apiUrl + '/data', JSON.stringify(this.Array), this.httpOptions).subscribe();
-            this.Array.splice(0, 50);
+            this.Array.splice(0, 60);
 
-        }, 5000);
+        }, 15000);
     }
 
     position(accX, accY, accZ) {
@@ -105,66 +95,6 @@ export class HomePage {
         this.positionY = Number(accY * 0.5 * 0.01) + Number(this.positionY) + Number(accY * 0.01);
         this.positionZ = Number(accZ * 0.5 * 0.01) + Number(this.positionZ) + Number(accZ * 0.01);
     }
-
-
-    chart() {
-        const datachart = setInterval(() => {
-            this.ArrayPositionX.push(this.positionX);
-            this.ArrayPositionY.push(this.positionY);
-            this.ArrayPositionZ.push(this.positionZ);
-            this.bars.data.labels.push(this.timestamp);
-            this.bars.update();
-        }, 100);
-
-        setTimeout(() => { clearInterval(datachart)}, 30000);
-    }
-
-
-
-
-    ionViewDidEnter() {
-        this.createBarChart();
-    }
-
-    createBarChart() {
-        this.bars = new Chart(this.barChart.nativeElement, {
-            type: 'line',
-            data: {
-                labels: ['Mes labels'],
-                datasets: [
-                    {
-                    label: 'X',
-                    pointBackgroundColor: 'rgb(29,44,160)',
-                    data: this.ArrayPositionX,
-                    fill: false,
-                    showLine: true,
-                },
-                    {
-                    label: 'Y',
-                    pointBackgroundColor: 'rgb(194,36,47)',
-                    data: this.ArrayPositionY,
-                    fill: false,
-                    showLine: true,
-                },
-                    {
-                    label: 'Z',
-                    pointBackgroundColor: 'rgb(39,194,68)',
-                    data: this.ArrayPositionZ,
-                    fill: false,
-                    showLine: true,
-                }]
-            },
-            options: {
-                scales: {
-                    yAxes: [{
-                        stacked: false
-                    }]
-                }
-            }
-        });
-    }
-
-
 
 
 
