@@ -4,7 +4,7 @@ import {Data} from './Models/Data';
 import {Observable} from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
 
-const apiUrl = 'http://185.216.25.16:3000/data';
+const apiUrl = 'http://185.216.25.16:3000/datas';
 
 
 
@@ -26,7 +26,7 @@ export class ApiService {
     };
 
     createItem(item) {
-        return this.http.post(apiUrl + '/data', JSON.stringify(item), this.httpOptions);
+        return this.http.post(apiUrl + '/add', JSON.stringify(item), this.httpOptions);
     }
 
 }

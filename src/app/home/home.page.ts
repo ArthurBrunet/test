@@ -6,7 +6,7 @@ import {HttpClient, HttpHeaders, HttpErrorResponse} from '@angular/common/http';
 import {Data} from '../Models/Data';
 
 
-const apiUrl = 'http://185.216.25.16:3000/data';
+const apiUrl = 'http://185.216.25.16:5000/datas';
 
 
 @Component({
@@ -19,6 +19,7 @@ const apiUrl = 'http://185.216.25.16:3000/data';
 
 export class HomePage {
     public Array = [];
+    public pseudo: string;
     public Data: Data;
     public x = 0;
     public y = 0;
@@ -43,15 +44,19 @@ export class HomePage {
         this.positionX = 0;
         this.positionY = 0;
         this.positionZ = 0;
-        this.gyro();
     }
 
 
     gyro() {
+
+        document.getElementById('button').style.display = 'none';
+        document.getElementById('pseudoTXT').style.display = 'none';
+
+
         this.deviceMotion.getCurrentAcceleration().then().catch();
 
 
-        this.deviceMotion.watchAcceleration({frequency: 100}).subscribe((acceleration: DeviceMotionAccelerationData) => {
+        this.deviceMotion.watchAcceleration({frequency: 10}).subscribe((acceleration: DeviceMotionAccelerationData) => {
             this.accX = acceleration.x;
             this.accZ = acceleration.z;
             this.accY = acceleration.y;
@@ -59,7 +64,7 @@ export class HomePage {
 
         this.gyroscope.getCurrent().then().catch();
 
-        this.gyroscope.watch({frequency: 100}).subscribe((orientation: GyroscopeOrientation) => {
+        this.gyroscope.watch({frequency: 10}).subscribe((orientation: GyroscopeOrientation) => {
             this.x = orientation.x;
             this.y = orientation.y;
             this.z = orientation.z;
@@ -78,16 +83,16 @@ export class HomePage {
                 accX: this.accX,
                 accY: this.accY,
                 accZ: this.accZ,
-                timestamp: this.timestamp
+                timestamp: this.timestamp,
+                pseudo: this.pseudo
             };
             this.Array.push(this.Data);
-        }, 250);
+        }, 10);
 
         setInterval(() => {
-            this.api.post(apiUrl + '/data', JSON.stringify(this.Array), this.httpOptions).subscribe();
-            this.Array.splice(0, 60);
-
-        }, 15000);
+            this.api.post(apiUrl + '/add', JSON.stringify(this.Array), this.httpOptions).subscribe();
+            this.Array.splice(0, 100);
+        }, 1000);
     }
 
     position(accX, accY, accZ) {

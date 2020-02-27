@@ -9,4 +9,5 @@ export class Data {
     accY: any;
     accZ: any;
     timestamp: any;
+    pseudo: any;
 }
