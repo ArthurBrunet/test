@@ -23,6 +23,9 @@ export class HomePage {
     public Array = [];
     public pseudo: string;
     public step = 0;
+    public affETX = 0;
+    public affETY = 0;
+    public affETZ = 0;
     public Data: Data;
 
     public result: Result;
@@ -76,20 +79,10 @@ export class HomePage {
 
         this.deviceMotion.getCurrentAcceleration().then().catch();
 
-
-        this.deviceMotion.watchAcceleration({frequency: 10}).subscribe((acceleration: DeviceMotionAccelerationData) => {
+        this.deviceMotion.watchAcceleration({frequency: 50}).subscribe((acceleration: DeviceMotionAccelerationData) => {
             this.accX = acceleration.x;
             this.accZ = acceleration.z;
             this.accY = acceleration.y;
-        });
-
-        this.gyroscope.getCurrent().then().catch();
-
-        this.gyroscope.watch({frequency: 10}).subscribe((orientation: GyroscopeOrientation) => {
-            this.x = orientation.x;
-            this.y = orientation.y;
-            this.z = orientation.z;
-            this.timestamp = orientation.timestamp;
         });
 
         setInterval(() => {
@@ -127,7 +120,7 @@ export class HomePage {
             };
 
             this.Array.push(this.Data);
-        }, 10);
+        }, 50);
 
         setInterval(() => {
             const x = (this.maxX - this.minX);
@@ -139,23 +132,52 @@ export class HomePage {
                 Z: z,
             };
             const AxeMax = Math.max(this.result.X, this.result.Y, this.result.Z);
+
             if ( this.result.X == AxeMax) {
                 let treshold = ((this.minX + this.maxX) / 2);
-                for (let i = 0; i < this.Array.length; i++){
+                let somme = 0;
+                let moyenne = 0;
+                this.Array.forEach(function(element) {
+                    moyenne += element.accX;
+                });
+                moyenne = (moyenne / this.Array.length );
+
+                for (let i = 0; i < this.Array.length; i++) {
+                    somme += (Math.pow(this.Array[i]["accX"] - moyenne, 2));
+                }
+
+                for (let i = 0; i < this.Array.length; i++) {
+
+                    const et = Math.sqrt((somme / (this.Array.length - 1)));
+                    this.affETX = et;
                     let a = i + 1;
-                    if (i !== (this.Array.length - 1) && (treshold > 0.5 || treshold < -0.5)) {
+
+                    if (i !== (this.Array.length - 1) && (treshold < et || treshold > (et * -1))) {
                         if (this.Array[i]["accX"] >= treshold && this.Array[a]["accX"] <= treshold) {
                             this.step++;
                         }
                     }
-
                 }
             }
             if ( this.result.Y == AxeMax ) {
                 let treshold = ((this.minY + this.maxY) / 2);
-                for (let i = 0; i < this.Array.length; i++){
+                let somme = 0;
+                let moyenne = 0;
+                this.Array.forEach(function(element) {
+                    moyenne += element.accX;
+                });
+                moyenne = (moyenne / this.Array.length );
+
+                for (let i = 0; i < this.Array.length; i++) {
+                    somme += (Math.pow(this.Array[i]["accY"] - moyenne, 2));
+                }
+
+
+                for (let i = 0; i < this.Array.length; i++) {
+                    const et = Math.sqrt((somme / (this.Array.length - 1)));
                     let a = i + 1;
-                    if (i !== (this.Array.length - 1) && (treshold > 0.5 || treshold < -0.5)) {
+                    this.affETY = et;
+                    if (i !== (this.Array.length - 1) && (treshold < et || treshold > (et * -1))) {
                         if (this.Array[i]["accY"] >= treshold && this.Array[a]["accY"] <= treshold) {
                             this.step++;
                         }
@@ -164,9 +186,22 @@ export class HomePage {
             }
             if ( this.result.Z == AxeMax ) {
                 let treshold = ((this.minZ + this.maxZ) / 2);
-                for (let i = 0; i < this.Array.length; i++){
+                let somme = 0;
+                let moyenne = 0;
+                this.Array.forEach(function(element) {
+                    moyenne += element.accX;
+                });
+                moyenne = (moyenne / this.Array.length );
+
+                for (let i = 0; i < this.Array.length; i++) {
+                    somme += (Math.pow(this.Array[i]["accZ"] - moyenne, 2));
+                }
+                for (let i = 0; i < this.Array.length; i++) {
+                    const et = Math.sqrt((somme / (this.Array.length - 1)));
                     let a = i + 1;
-                    if (i !== (this.Array.length - 1) && (treshold > 0.5 || treshold < -0.5)) {
+                    this.affETZ = et;
+
+                    if (i !== (this.Array.length - 1) && (treshold < et || treshold > (et * -1))) {
                         if (this.Array[i]["accZ"] >= treshold && this.Array[a]["accZ"] <= treshold) {
                             this.step++;
                         }
@@ -174,8 +209,8 @@ export class HomePage {
                 }
             }
 
-            this.api.post(apiUrl + '/add', JSON.stringify(this.Array), this.httpOptions).subscribe();
-            this.Array.splice(0, 100);
+            // this.api.post(apiUrl + '/add', JSON.stringify(this.Array), this.httpOptions).subscribe();
+            this.Array.splice(0, 50);
             this.result.X = 0;
             this.result.Y = 0;
             this.result.Z = 0;

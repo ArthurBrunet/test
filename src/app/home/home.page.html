@@ -6,9 +6,30 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content padding>
+<ion-content padding style="height: 600px">
   <p>salut</p>
   <input id="pseudoTXT" type="text" placeholder="pseudo" [(ngModel)]="pseudo">
-  <input type="text" [(ngModel)]="step">
+  <!-- Item Full Lines -->
+  <ion-item lines="full">
+    <ion-label>STEP : </ion-label>
+    <ion-input [(ngModel)]="step"></ion-input>
+  </ion-item><!-- Item Full Lines -->
+  <ion-item lines="full">
+    <ion-label>ET X</ion-label>
+    <ion-input [(ngModel)]="affETX"></ion-input>
+  </ion-item><!-- Item Full Lines -->
+  <ion-item lines="full">
+    <ion-label>ET Y</ion-label>
+    <ion-input [(ngModel)]="affETY"></ion-input>
+  </ion-item><!-- Item Full Lines -->
+  <ion-item lines="full">
+    <ion-label>ET Z</ion-label>
+    <ion-input [(ngModel)]="affETZ"></ion-input>
+  </ion-item>
+  <ion-item lines="full">
+    <ion-label>pseudo</ion-label>
+    <ion-input [(ngModel)]="pseudo"></ion-input>
+  </ion-item><!-- Item Full Lines -->
+
   <ion-button id="button" (click)="gyro()"></ion-button>
 </ion-content>
