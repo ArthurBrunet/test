@@ -2,7 +2,6 @@ import {Component, ViewChild} from '@angular/core';
 import {DeviceMotion, DeviceMotionAccelerationData} from '@ionic-native/device-motion/ngx';
 import {Gyroscope, GyroscopeOrientation, GyroscopeOptions} from '@ionic-native/gyroscope/ngx';
 import {HttpClient, HttpHeaders, HttpErrorResponse} from '@angular/common/http';
-import { UniqueDeviceID } from '@ionic-native/unique-device-id';
 
 import {Data} from '../Models/Data';
 import {Result} from '../Models/Result';
@@ -22,12 +21,13 @@ const apiUrl = 'http://185.216.25.16:5000/datas';
 
 export class HomePage {
     public Array = [];
-    public pseudo: string;
+    public pseudo: any;
     public step = 0;
     public affETX = 0;
     public affETY = 0;
     public affETZ = 0;
     public Data: Data;
+    public stepStatus = false;
 
     public result: Result;
 
@@ -69,7 +69,7 @@ export class HomePage {
 
 
 
-    constructor(private deviceMotion: DeviceMotion, private gyroscope: Gyroscope, private api: HttpClient,private geolocation: Geolocation,private uniqueDeviceID: UniqueDeviceID) {
+    constructor(private deviceMotion: DeviceMotion, private gyroscope: Gyroscope, private api: HttpClient, private geolocation: Geolocation) {
         this.minX = 0;
         this.maxX = 0;
         this.minY = 0;
@@ -83,8 +83,6 @@ export class HomePage {
 
         document.getElementById('button').style.display = 'none';
         document.getElementById('pseudoTXT').style.display = 'none';
-
-        this.uniqueDeviceID.get().then((uuid: any) => this.pseudo = uuid).catch((error: any) => this.pseudo = error );
 
         this.geolocation.getCurrentPosition().then((resp) => {}).catch((error) => {
             this.accuracy = 'error';
@@ -183,8 +181,8 @@ export class HomePage {
                 let treshold = ((this.minX + this.maxX) / 2);
                 let somme = 0;
                 let moyenne = 0;
-                let stepValid = 0;
-                let stepInvalid = 0;
+
+
                 this.Array.forEach(function(element) {
                     moyenne += element.accX;
                 });
@@ -193,7 +191,7 @@ export class HomePage {
                 for (let i = 0; i < this.Array.length; i++) {
                     somme += (Math.pow(this.Array[i]["accX"] - moyenne, 2));
                 }
-
+                let stepValid = 0;
                 for (let i = 0; i < this.Array.length; i++) {
 
                     const et = Math.sqrt((somme / (this.Array.length - 1)));
@@ -206,14 +204,23 @@ export class HomePage {
                         }
                     }
                 }
-                if (stepValid <= 3 || stepValid >= 1){
-                    this.step = stepValid;
-                }g
+                if ( this.stepStatus ) {
+                    if (stepValid <= 3 && stepValid >= 1){
+                        this.step += (stepValid);
+                    } else {
+                        this.stepStatus = false;
+                    }
+                } else {
+                    if (stepValid <= 3 && stepValid >= 1){
+                        this.stepStatus = true;
+                    }
+                }
             }
             if ( this.result.Y == AxeMax ) {
                 let treshold = ((this.minY + this.maxY) / 2);
                 let somme = 0;
                 let moyenne = 0;
+                let stepValid = 0;
                 this.Array.forEach(function(element) {
                     moyenne += element.accY;
                 });
@@ -230,8 +237,19 @@ export class HomePage {
                     this.affETY = et;
                     if (i !== (this.Array.length - 1) && (this.Array[i]["accY"] < et || this.Array[i]["accY"] > (et * -1))) {
                         if (this.Array[i]["accY"] >= treshold && this.Array[a]["accY"] <= treshold) {
-                            this.step++;
+                            stepValid++;
                         }
+                    }
+                }
+                if ( this.stepStatus ) {
+                    if (stepValid <= 3 && stepValid >= 1){
+                        this.step += (stepValid);
+                    } else {
+                        this.stepStatus = false;
+                    }
+                } else {
+                    if (stepValid <= 3 && stepValid >= 1){
+                        this.stepStatus = true;
                     }
                 }
             }
@@ -239,6 +257,7 @@ export class HomePage {
                 let treshold = ((this.minZ + this.maxZ) / 2);
                 let somme = 0;
                 let moyenne = 0;
+                let stepValid = 0;
                 this.Array.forEach(function(element) {
                     moyenne += element.accZ;
                 });
@@ -254,13 +273,25 @@ export class HomePage {
 
                     if (i !== (this.Array.length - 1) && (this.Array[i]["accZ"] < et || this.Array[i]["accZ"] > (et * -1))) {
                         if (this.Array[i]["accZ"] >= treshold && this.Array[a]["accZ"] <= treshold) {
-                            this.step++;
+                            stepValid++;
                         }
                     }
                 }
+                if ( this.stepStatus ) {
+                    if (stepValid <= 3 && stepValid >= 1){
+                        this.step += (stepValid);
+                    } else {
+                        this.stepStatus = false;
+                    }
+                } else {
+                    if (stepValid <= 3 && stepValid >= 1){
+                        this.stepStatus = true;
+                    }
+                }
             }
-
-            this.api.post(apiUrl + '/add', JSON.stringify(this.Array), this.httpOptions).subscribe();
+            if (this.stepStatus) {
+                this.api.post(apiUrl + '/add', JSON.stringify(this.Array), this.httpOptions).subscribe();
+            }
             this.Array.splice(0, 100);
             this.result.X = 0;
             this.result.Y = 0;
@@ -273,6 +304,7 @@ export class HomePage {
             this.minZ = 0;
         }, 1000);
     }
+
 
     position(accX, accY, accZ) {
         this.positionX = Number(accX * 0.5 * 0.01) + Number(this.positionX) + Number(accX * 0.01);
