@@ -8,7 +8,7 @@ export class Data {
     accX: any;
     accY: any;
     accZ: any;
-    steps: any;
+    steps: number;
     accuracy: any;
     long: any;
     lat: any;
