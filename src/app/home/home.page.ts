@@ -206,7 +206,7 @@ export class HomePage {
                 }
                 if ( this.stepStatus ) {
                     if (stepValid <= 3 && stepValid >= 1){
-                        this.step = (this.step + stepValid);
+                        this.step = (Number(this.step) + Number(stepValid));
                     } else {
                         this.stepStatus = false;
                     }
@@ -243,7 +243,7 @@ export class HomePage {
                 }
                 if ( this.stepStatus ) {
                     if (stepValid <= 3 && stepValid >= 1){
-                        this.step = (this.step + stepValid);
+                        this.step = (Number(this.step) + Number(stepValid));
                     } else {
                         this.stepStatus = false;
                     }
@@ -279,7 +279,7 @@ export class HomePage {
                 }
                 if ( this.stepStatus ) {
                     if (stepValid <= 3 && stepValid >= 1){
-                        this.step = (this.step + stepValid);
+                        this.step = (Number(this.step) + Number(stepValid));
                     } else {
                         this.stepStatus = false;
                     }
