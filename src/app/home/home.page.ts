@@ -54,7 +54,12 @@ export class HomePage {
     public positionY = 0;
     public positionZ = 0;
 
-    private timestamp: any;
+    public accuracy: any;
+    public long: any;
+    public lat: any;
+    public speed: any;
+
+    public timestamp: any;
 
 
     httpOptions = {
@@ -62,6 +67,7 @@ export class HomePage {
             'Content-Type': 'application/json'
         })
     };
+
 
 
 
@@ -81,19 +87,19 @@ export class HomePage {
         document.getElementById('pseudoTXT').style.display = 'none';
 
 
-        this.geolocation.getCurrentPosition().then((resp) => {
-            // resp.coords.latitude
-            // resp.coords.longitude
-        }).catch((error) => {
-            console.log('Error getting location', error);
+        this.geolocation.getCurrentPosition().then((resp) => {}).catch((error) => {
+            this.accuracy = 'error';
+            this.long = 'error';
+            this.lat = 'error';
+            this.speed = 'error';
         });
 
         let watch = this.geolocation.watchPosition();
         watch.subscribe((data) => {
-            data.coords.speed
-            data.coords.latitude
-            data.coords.longitude
-            data.coords.
+            this.speed = data.coords.speed;
+            this.lat = data.coords.latitude;
+            this.long = data.coords.longitude;
+            this.accuracy = data.coords.accuracy;
         });
 
 
@@ -151,6 +157,11 @@ export class HomePage {
                 accX: this.accX,
                 accY: this.accY,
                 accZ: this.accZ,
+                steps: this.step,
+                accuracy: this.accuracy,
+                long: this.long,
+                lat: this.lat,
+                speed: this.speed,
                 timestamp: this.timestamp,
                 pseudo: this.pseudo
             };
@@ -247,6 +258,7 @@ export class HomePage {
 
             this.api.post(apiUrl + '/add', JSON.stringify(this.Array), this.httpOptions).subscribe();
             this.Array.splice(0, 100);
+            this.step = 0;
             this.result.X = 0;
             this.result.Y = 0;
             this.result.Z = 0;

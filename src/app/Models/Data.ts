@@ -8,6 +8,11 @@ export class Data {
     accX: any;
     accY: any;
     accZ: any;
+    steps: any;
+    accuracy: any;
+    long: any;
+    lat: any;
+    speed: any;
     timestamp: any;
     pseudo: any;
 }
