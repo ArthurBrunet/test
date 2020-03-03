@@ -8,6 +8,7 @@ import {StatusBar} from '@ionic-native/status-bar/ngx';
 import {Gyroscope, GyroscopeOrientation, GyroscopeOptions} from '@ionic-native/gyroscope/ngx';
 import {DeviceMotion, DeviceMotionAccelerationData} from '@ionic-native/device-motion/ngx';
 import {HttpClientModule, HttpHeaders} from '@angular/common/http';
+import { Geolocation } from '@ionic-native/geolocation/ngx';
 
 import {AppComponent} from './app.component';
 import {AppRoutingModule} from './app-routing.module';
@@ -21,6 +22,7 @@ import {AppRoutingModule} from './app-routing.module';
         DeviceMotion,
         StatusBar,
         SplashScreen,
+        Geolocation,
         {provide: RouteReuseStrategy, useClass: IonicRouteStrategy}
     ],
     bootstrap: [AppComponent]

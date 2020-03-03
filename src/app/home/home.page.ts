@@ -5,7 +5,7 @@ import {HttpClient, HttpHeaders, HttpErrorResponse} from '@angular/common/http';
 
 import {Data} from '../Models/Data';
 import {Result} from '../Models/Result';
-import {element} from 'protractor';
+import { Geolocation } from '@ionic-native/geolocation/ngx';
 
 
 const apiUrl = 'http://185.216.25.16:5000/datas';
@@ -47,6 +47,9 @@ export class HomePage {
     public accY = 0;
     public accZ = 0;
 
+    public magnitude = 0;
+    public treshold = 0;
+
     public positionX = 0;
     public positionY = 0;
     public positionZ = 0;
@@ -61,7 +64,8 @@ export class HomePage {
     };
 
 
-    constructor(private deviceMotion: DeviceMotion, private gyroscope: Gyroscope, private api: HttpClient) {
+
+    constructor(private deviceMotion: DeviceMotion, private gyroscope: Gyroscope, private api: HttpClient,private geolocation: Geolocation) {
         this.minX = 0;
         this.maxX = 0;
         this.minY = 0;
@@ -77,12 +81,44 @@ export class HomePage {
         document.getElementById('pseudoTXT').style.display = 'none';
 
 
+        this.geolocation.getCurrentPosition().then((resp) => {
+            // resp.coords.latitude
+            // resp.coords.longitude
+        }).catch((error) => {
+            console.log('Error getting location', error);
+        });
+
+        let watch = this.geolocation.watchPosition();
+        watch.subscribe((data) => {
+            data.coords.speed
+            data.coords.latitude
+            data.coords.longitude
+            data.coords.
+        });
+
+
+
+        let options: GyroscopeOptions = {
+            frequency: 50
+        };
+
+        this.gyroscope.getCurrent(options).then().catch();
+
+
+        this.gyroscope.watch().subscribe((orientation: GyroscopeOrientation) => {
+            this.x = orientation.x;
+            this.z = orientation.z;
+            this.y = orientation.y;
+            });
+
+
         this.deviceMotion.getCurrentAcceleration().then().catch();
 
         this.deviceMotion.watchAcceleration({frequency: 50}).subscribe((acceleration: DeviceMotionAccelerationData) => {
             this.accX = acceleration.x;
             this.accZ = acceleration.z;
             this.accY = acceleration.y;
+            this.timestamp = acceleration.timestamp;
         });
 
         setInterval(() => {
@@ -152,9 +188,9 @@ export class HomePage {
                     this.affETX = et;
                     let a = i + 1;
 
-                    if (i !== (this.Array.length - 1) && (treshold < et || treshold > (et * -1))) {
+                    if (i !== (this.Array.length - 1) && (this.Array[i]["accX"] < et || this.Array[i]["accX"] > (et * -1))) {
                         if (this.Array[i]["accX"] >= treshold && this.Array[a]["accX"] <= treshold) {
-                            this.step++;
+                            /*this.step++;*/
                         }
                     }
                 }
@@ -164,7 +200,7 @@ export class HomePage {
                 let somme = 0;
                 let moyenne = 0;
                 this.Array.forEach(function(element) {
-                    moyenne += element.accX;
+                    moyenne += element.accY;
                 });
                 moyenne = (moyenne / this.Array.length );
 
@@ -177,9 +213,9 @@ export class HomePage {
                     const et = Math.sqrt((somme / (this.Array.length - 1)));
                     let a = i + 1;
                     this.affETY = et;
-                    if (i !== (this.Array.length - 1) && (treshold < et || treshold > (et * -1))) {
+                    if (i !== (this.Array.length - 1) && (this.Array[i]["accY"] < et || this.Array[i]["accY"] > (et * -1))) {
                         if (this.Array[i]["accY"] >= treshold && this.Array[a]["accY"] <= treshold) {
-                            this.step++;
+                            /*this.step++;*/
                         }
                     }
                 }
@@ -189,7 +225,7 @@ export class HomePage {
                 let somme = 0;
                 let moyenne = 0;
                 this.Array.forEach(function(element) {
-                    moyenne += element.accX;
+                    moyenne += element.accZ;
                 });
                 moyenne = (moyenne / this.Array.length );
 
@@ -201,16 +237,16 @@ export class HomePage {
                     let a = i + 1;
                     this.affETZ = et;
 
-                    if (i !== (this.Array.length - 1) && (treshold < et || treshold > (et * -1))) {
+                    if (i !== (this.Array.length - 1) && (this.Array[i]["accZ"] < et || this.Array[i]["accZ"] > (et * -1))) {
                         if (this.Array[i]["accZ"] >= treshold && this.Array[a]["accZ"] <= treshold) {
-                            this.step++;
+                            /*this.step++;*/
                         }
                     }
                 }
             }
 
-            // this.api.post(apiUrl + '/add', JSON.stringify(this.Array), this.httpOptions).subscribe();
-            this.Array.splice(0, 50);
+            this.api.post(apiUrl + '/add', JSON.stringify(this.Array), this.httpOptions).subscribe();
+            this.Array.splice(0, 100);
             this.result.X = 0;
             this.result.Y = 0;
             this.result.Z = 0;
