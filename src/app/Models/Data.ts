@@ -14,5 +14,5 @@ export class Data {
     lat: any;
     speed: any;
     timestamp: any;
-    pseudo: any;
+    id_device: any;
 }

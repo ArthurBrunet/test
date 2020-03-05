@@ -2,10 +2,12 @@ import {Component, ViewChild} from '@angular/core';
 import {DeviceMotion, DeviceMotionAccelerationData} from '@ionic-native/device-motion/ngx';
 import {Gyroscope, GyroscopeOrientation, GyroscopeOptions} from '@ionic-native/gyroscope/ngx';
 import {HttpClient, HttpHeaders, HttpErrorResponse} from '@angular/common/http';
+import { Device } from '@ionic-native/device/ngx';
 
 import {Data} from '../Models/Data';
 import {Result} from '../Models/Result';
 import { Geolocation } from '@ionic-native/geolocation/ngx';
+
 
 
 const apiUrl = 'http://185.216.25.16:5000/datas';
@@ -21,7 +23,6 @@ const apiUrl = 'http://185.216.25.16:5000/datas';
 
 export class HomePage {
     public Array = [];
-    public pseudo: any;
     public step = 0;
     public affETX = 0;
     public affETY = 0;
@@ -69,7 +70,7 @@ export class HomePage {
 
 
 
-    constructor(private deviceMotion: DeviceMotion, private gyroscope: Gyroscope, private api: HttpClient, private geolocation: Geolocation) {
+    constructor(private device: Device, private deviceMotion: DeviceMotion, private gyroscope: Gyroscope, private api: HttpClient, private geolocation: Geolocation) {
         this.minX = 0;
         this.maxX = 0;
         this.minY = 0;
@@ -160,7 +161,7 @@ export class HomePage {
                 lat: this.lat,
                 speed: this.speed,
                 timestamp: this.timestamp,
-                pseudo: this.pseudo
+                id_device: this.device.uuid
             };
 
             this.Array.push(this.Data);
@@ -193,14 +194,16 @@ export class HomePage {
                 }
                 let stepValid = 0;
                 for (let i = 0; i < this.Array.length; i++) {
-
-                    const et = Math.sqrt((somme / (this.Array.length - 1)));
-                    this.affETX = et;
                     let a = i + 1;
+                    if (this.Array[i]["accX"] <= 8.5 && this.Array[i]['accX'] >= -8.5){
+                        const et = Math.sqrt((somme / (this.Array.length - 1)));
+                        this.affETX = et;
 
-                    if (i !== (this.Array.length - 1) && (this.Array[i]["accX"] < et || this.Array[i]["accX"] > (et * -1))) {
-                        if (this.Array[i]["accX"] >= treshold && this.Array[a]["accX"] <= treshold) {
-                            stepValid++;
+
+                        if (i !== (this.Array.length - 1) && (this.Array[i]["accX"] < et || this.Array[i]["accX"] > (et * -1))) {
+                            if (this.Array[i]["accX"] >= treshold && this.Array[a]["accX"] <= treshold) {
+                                stepValid++;
+                            }
                         }
                     }
                 }
@@ -232,12 +235,14 @@ export class HomePage {
 
 
                 for (let i = 0; i < this.Array.length; i++) {
-                    const et = Math.sqrt((somme / (this.Array.length - 1)));
                     let a = i + 1;
-                    this.affETY = et;
-                    if (i !== (this.Array.length - 1) && (this.Array[i]["accY"] < et || this.Array[i]["accY"] > (et * -1))) {
-                        if (this.Array[i]["accY"] >= treshold && this.Array[a]["accY"] <= treshold) {
-                            stepValid++;
+                    if (this.Array[i]["accY"] <= 8.5 && this.Array[i]['accY'] >= -8.5){
+                        const et = Math.sqrt((somme / (this.Array.length - 1)));
+                        this.affETY = et;
+                        if (i !== (this.Array.length - 1) && (this.Array[i]["accY"] < et || this.Array[i]["accY"] > (et * -1))) {
+                            if (this.Array[i]["accY"] >= treshold && this.Array[a]["accY"] <= treshold) {
+                                stepValid++;
+                            }
                         }
                     }
                 }
@@ -267,24 +272,25 @@ export class HomePage {
                     somme += (Math.pow(this.Array[i]["accZ"] - moyenne, 2));
                 }
                 for (let i = 0; i < this.Array.length; i++) {
-                    const et = Math.sqrt((somme / (this.Array.length - 1)));
                     let a = i + 1;
-                    this.affETZ = et;
-
-                    if (i !== (this.Array.length - 1) && (this.Array[i]["accZ"] < et || this.Array[i]["accZ"] > (et * -1))) {
-                        if (this.Array[i]["accZ"] >= treshold && this.Array[a]["accZ"] <= treshold) {
-                            stepValid++;
+                    if (this.Array[i]["accZ"] <= 8.5 && this.Array[i]['accZ'] >= -8.5){
+                        const et = Math.sqrt((somme / (this.Array.length - 1)));
+                        this.affETZ = et;
+                        if (i !== (this.Array.length - 1) && (this.Array[i]["accZ"] < et || this.Array[i]["accZ"] > (et * -1))) {
+                            if (this.Array[i]["accZ"] >= treshold && this.Array[a]["accZ"] <= treshold) {
+                                stepValid++;
+                            }
                         }
                     }
                 }
                 if ( this.stepStatus ) {
-                    if (stepValid <= 3 && stepValid >= 1){
+                    if (stepValid <= 3 && stepValid >= 1) {
                         this.step = (Number(this.step) + Number(stepValid));
                     } else {
                         this.stepStatus = false;
                     }
                 } else {
-                    if (stepValid <= 3 && stepValid >= 1){
+                    if (stepValid <= 3 && stepValid >= 1) {
                         this.stepStatus = true;
                     }
                 }
